@@ -37,6 +37,12 @@ export class Users {
     password: string;
 
     @Prop({
+        type: String,
+        default: null,
+    })
+    refreshToken?: string
+
+    @Prop({
         enum: RoleUser,
         required: true,
         default: RoleUser.MEMBER,

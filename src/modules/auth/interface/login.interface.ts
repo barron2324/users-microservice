@@ -1,4 +1,5 @@
 export interface loginterface {
-  email: string;
-  sub: string;
+  accessToken: string
+
+  refreshToken: string
 }

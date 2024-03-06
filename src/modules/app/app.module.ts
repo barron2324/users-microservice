@@ -1,28 +1,23 @@
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Module} from '@nestjs/common';
+import { ConfigModule} from '@nestjs/config';
 import configuration from 'src/config/configuration';
-import { DB_CONNECTION_NAME } from 'src/constants';
 import { UsersModule } from '../users/users.module';
+import { throttlerAsyncOptions, throttlerServiceProvider } from 'src/throttler.providers';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { MongooseModule } from '@nestjs/mongoose';
+import { mongooseModuleAsyncOptions } from 'src/mongoose.providers';
+import { AuthModule } from '../auth/auth.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
             load: [configuration],
+            isGlobal: true,
         }),
-        MongooseModule.forRootAsync({
-            connectionName: DB_CONNECTION_NAME,
-            imports: [ConfigModule],
-            useFactory: (configService: ConfigService) => {
-                return {
-                    uri: configService.get<string>('database.host'),
-                    ...configService.get<any>('database.options'),
-                };
-            },
-            inject: [ConfigService],
-        }),
+        MongooseModule.forRootAsync(mongooseModuleAsyncOptions),
+        ThrottlerModule.forRootAsync(throttlerAsyncOptions),
         UsersModule,
+        AuthModule,
     ],
-    controllers: [],
-    providers: [],
+    providers: [throttlerServiceProvider],
 })
 export class AppModule {}
