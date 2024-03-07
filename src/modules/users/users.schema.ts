@@ -40,6 +40,12 @@ export class Users {
         type: String,
         default: null,
     })
+    token?: string
+
+    @Prop({
+        type: String,
+        default: null,
+    })
     refreshToken?: string
 
     @Prop({
@@ -55,6 +61,12 @@ export class Users {
         default: StatusUser.ACTIVE,
     })
     status?: StatusUser;
+
+    @Prop({
+        type: Date,
+        default: null,
+    })
+    latestLogin?: Date
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users);

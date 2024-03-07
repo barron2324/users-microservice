@@ -20,7 +20,7 @@ export class UsersMicroserviec {
         cmd: USER_CMD,
         method: 'login',
     })
-    async signIn(
+    async login(
         @Payload() payload: { userId: string; email: string },
     ): Promise<loginterface> {
         const { userId, email } = payload
@@ -44,8 +44,10 @@ export class UsersMicroserviec {
             },
         }
 
+        this.logger.log(update)
+
         try {
-            await this.usersService.getUserModel().updateOne({ email }, update)
+            await this.usersService.getUserModel().updateOne({ userId }, update)
         } catch (e) {
             this.logger.error(
                 `catch on login-update: ${e?.message ?? JSON.stringify(e)}`,
@@ -59,6 +61,7 @@ export class UsersMicroserviec {
             refreshToken: jwtSign[1],
         }
     }
+
     @MessagePattern({
         cmd: USER_CMD,
         method: 'register',
@@ -85,6 +88,7 @@ export class UsersMicroserviec {
     })
     async getByUserId(@Payload() userId: string): Promise<Users> {
         try {
+            this.logger.log(userId)
             return this.authService.getByUserId(userId)
         } catch (error) {
             this.logger.error(
@@ -102,7 +106,7 @@ export class UsersMicroserviec {
     })
     async getByEmail(@Payload() email: string): Promise<Users> {
         try {
-            return this.authService.getByUserId(email)
+            return this.authService.getByEmail(email)
         } catch (error) {
             this.logger.error(
                 `catch on getByObjectId: ${error?.message ?? JSON.stringify(error)}`,
@@ -111,14 +115,5 @@ export class UsersMicroserviec {
                 message: error?.message ?? error,
             })
         }
-    }
-
-    @MessagePattern({
-        cmd: USER_CMD,
-        method: 'ping',
-    })
-    async pong() {
-        const pong = 'Pong!';
-        this.logger.log(pong);
     }
 }

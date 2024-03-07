@@ -21,20 +21,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-  ) {}
-
-  async findEmailUser(email: string): Promise<Users | null> {
-    const user = await this.findByEmail(email);
-    if (!user) {
-      this.logger.log(`No existe el usuario ${email}`);
-      return null;
-    }
-    return user;
-  }
-
-  async findByEmail(email: string): Promise<Users> {
-    return await this.usersService.getUserModel().findOne({ email }).lean();
-  }
+  ) { }
 
   async createTokens(userId: string, email: string): Promise<any> {
     const jwtOption: JwtSignOptions = {
@@ -59,23 +46,10 @@ export class AuthService {
   }
 
   async getByUserId(userId: string): Promise<Users> {
-    return this.usersService.getUserModel()
-      .findOne(
-        { userId },
-        {
-          _id: 0,
-          userId: 1,
-          username: 1,
-          email: 1,
-          roles: 1,
-        },
-      )
-      .lean()
+    return this.usersService.getUserModel().findOne({ userId }).lean()
   }
 
   async getByEmail(email: string): Promise<Users> {
-    return this.usersService.getUserModel()
-      .findOne({ email }, { _id: 0, createdAt: 0, updatedAt: 0 })
-      .lean()
+    return this.usersService.getUserModel().findOne({ email }).lean()
   }
 }
