@@ -7,6 +7,7 @@ import { USER_CMD } from 'src/constants';
 import { payloadLoginUserInterface } from '../auth/interface/payload-login-user.interface';
 import { loginterface } from '../auth/interface/login.interface';
 import { Users } from './users.schema';
+import { log } from 'console';
 
 @Controller('users')
 export class UsersMicroserviec {
@@ -21,13 +22,13 @@ export class UsersMicroserviec {
         method: 'login',
     })
     async login(
-        @Payload() payload: { userId: string; email: string },
+        @Payload() payload: { email: string;},
     ): Promise<loginterface> {
-        const { userId, email } = payload
+        const { email } = payload
 
         let jwtSign: loginterface
         try {
-            jwtSign = await this.authService.createTokens(userId, email)
+            jwtSign = await this.authService.createTokens(email)
         } catch (e) {
             this.logger.error(
                 `catch on login-createTokens: ${e?.message ?? JSON.stringify(e)}`,
@@ -38,16 +39,16 @@ export class UsersMicroserviec {
         }
 
         const update = {
-            $set: {
+    
                 token: jwtSign[0],
                 latestLogin: Date.now(),
-            },
+            
         }
-
-        this.logger.log(update)
+console.log(payload)
+        this.logger.log(email,update)
 
         try {
-            await this.usersService.getUserModel().updateOne({ userId }, update)
+            await this.usersService.getUserModel().updateOne({ email }, {...update})
         } catch (e) {
             this.logger.error(
                 `catch on login-update: ${e?.message ?? JSON.stringify(e)}`,

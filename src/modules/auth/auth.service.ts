@@ -23,21 +23,20 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) { }
 
-  async createTokens(userId: string, email: string): Promise<any> {
+  async createTokens(email: string): Promise<any> {
     const jwtOption: JwtSignOptions = {
+      expiresIn: '2day',
       secret: this.configService.get<string>('authentication.secret'),
     }
     return Promise.all([
       this.jwtService.signAsync(
         {
-          userId,
           email,
         },
         jwtOption,
       ),
       this.jwtService.signAsync(
         {
-          userId,
           email,
         },
         jwtOption,
