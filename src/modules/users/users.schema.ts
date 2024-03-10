@@ -32,6 +32,18 @@ export class Users {
     @Prop({
         type: String,
         required: true,
+    })
+    fristname: string;
+
+    @Prop({
+        type: String,
+        required: true,
+    })
+    lastname: string;
+
+    @Prop({
+        type: String,
+        required: true,
         index: true,
     })
     password: string;

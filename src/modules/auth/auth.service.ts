@@ -11,6 +11,8 @@ import { UsersService } from '../users/users.service';
 import { JwtPayload } from './interface/payload-jwt.interface';
 import { JWTSECRET } from 'src/constants';
 import { compare } from 'bcrypt';
+import StatusUser from '../users/enum/status-user.enum';
+import RoleUser from '../users/enum/roles-user.enum';
 
 @Injectable()
 export class AuthService {
@@ -44,11 +46,24 @@ export class AuthService {
     ])
   }
 
-  async getByUserId(userId: string): Promise<Users> {
+  getByUserId(userId: string): Promise<Users> {
     return this.usersService.getUserModel().findOne({ userId }).lean()
   }
 
-  async getByEmail(email: string): Promise<Users> {
+  getByEmail(email: string): Promise<Users> {
     return this.usersService.getUserModel().findOne({ email }).lean()
+  }
+
+  getByUsername(username: string): Promise<Users> {
+    return this.usersService.getUserModel().findOne({ username }).lean()
+  }
+
+  blockUser(email: string): Promise<Users> {
+    return this.usersService.getUserModel().findOne(
+      {
+        email,
+        status: StatusUser.INACTIVE
+      }
+    ).lean()
   }
 }

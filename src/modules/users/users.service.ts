@@ -46,4 +46,8 @@ export class UsersService {
     async findOneUsername(username: string): Promise<Users> {
         return this.usersModel.findOne({ username }).lean();
     }
+
+    async deleteOneByUserId(userId: string): Promise<Users> {
+        return this.usersModel.findOneAndDelete({ userId }).lean().exec()
+    }
 }

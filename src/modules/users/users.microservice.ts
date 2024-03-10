@@ -8,6 +8,7 @@ import { payloadLoginUserInterface } from '../auth/interface/payload-login-user.
 import { loginterface } from '../auth/interface/login.interface';
 import { Users } from './users.schema';
 import { log } from 'console';
+import { payloadUpdateUserInterface } from './interface/payload-update-user.interface';
 
 @Controller('users')
 export class UsersMicroserviec {
@@ -22,7 +23,7 @@ export class UsersMicroserviec {
         method: 'login',
     })
     async login(
-        @Payload() payload: { email: string;},
+        @Payload() payload: { email: string; },
     ): Promise<loginterface> {
         const { email } = payload
 
@@ -39,16 +40,16 @@ export class UsersMicroserviec {
         }
 
         const update = {
-    
-                token: jwtSign[0],
-                latestLogin: Date.now(),
-            
+
+            token: jwtSign[0],
+            latestLogin: Date.now(),
+
         }
-console.log(payload)
-        this.logger.log(email,update)
+        console.log(payload)
+        this.logger.log(email, update)
 
         try {
-            await this.usersService.getUserModel().updateOne({ email }, {...update})
+            await this.usersService.getUserModel().updateOne({ email }, { ...update })
         } catch (e) {
             this.logger.error(
                 `catch on login-update: ${e?.message ?? JSON.stringify(e)}`,
@@ -93,7 +94,7 @@ console.log(payload)
             return this.authService.getByUserId(userId)
         } catch (error) {
             this.logger.error(
-                `catch on getByObjectId: ${error?.message ?? JSON.stringify(error)}`,
+                `catch on getByUserId: ${error?.message ?? JSON.stringify(error)}`,
             )
             throw new InternalServerErrorException({
                 message: error?.message ?? error,
@@ -110,11 +111,99 @@ console.log(payload)
             return this.authService.getByEmail(email)
         } catch (error) {
             this.logger.error(
-                `catch on getByObjectId: ${error?.message ?? JSON.stringify(error)}`,
+                `catch on getByEmail: ${error?.message ?? JSON.stringify(error)}`,
             )
             throw new InternalServerErrorException({
                 message: error?.message ?? error,
             })
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'getByUsername',
+    })
+    async getByUsername(@Payload() username: string): Promise<Users> {
+        try {
+            return this.authService.getByUsername(username)
+        } catch (error) {
+            this.logger.error(
+                `catch on getByUsername: ${error?.message ?? JSON.stringify(error)}`,
+            )
+            throw new InternalServerErrorException({
+                message: error?.message ?? error,
+            })
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'getBlockUser'
+    })
+    async getBlockUser(email: string): Promise<Users> {
+        try {
+            return this.authService.blockUser(email)
+        } catch (error) {
+            this.logger.error(
+                `catch on getBlockUser: ${error?.message ?? JSON.stringify(error)}`,
+            )
+            throw new InternalServerErrorException({
+                message: error?.message ?? error,
+            })
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'changePassword'
+    })
+    async changePasswordUser(payload: { userId: string, hashPassword }): Promise<void> {
+        const { userId, hashPassword } = payload
+        try {
+            await this.usersService.getUserModel().updateOne({ userId }, { password: hashPassword })
+        } catch (e) {
+            this.logger.error(
+                `catch on changePassword: ${e?.message ?? JSON.stringify(e)}`,
+            )
+            throw new InternalServerErrorException({
+                message: e?.message ?? e,
+            })
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'updateUser'
+    })
+    async updateUser(@Payload() payload: { userId: string, update: payloadUpdateUserInterface } ): Promise<void> {
+        const { userId, update } = payload
+        this.logger.log(userId, update)
+        try {
+            await this.usersService.getUserModel().updateOne({ userId }, { ...update });
+        } catch (e) {
+            this.logger.error(
+                `catch on updateUser: ${e?.message ?? JSON.stringify(e)}`,
+            );
+            throw new InternalServerErrorException({
+                message: e?.message ?? e,
+            });
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'deleteUser'
+    })
+    async deleteUser(@Payload() userId: string): Promise<void> {
+        try {
+            await this.usersService.deleteOneByUserId(userId)
+        } catch (e) {
+            this.logger.error(
+                `catch on deleteUser: ${e?.message ?? JSON.stringify(e)}`,
+            );
+            throw new InternalServerErrorException({
+                message: e?.message ?? e,
+            });
         }
     }
 }
