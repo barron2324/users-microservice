@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import RoleUser from './enum/roles-user.enum';
 import StatusUser from './enum/status-user.enum';
 
-@Schema({})
+@Schema({ collection: 'users', timestamps: true, versionKey: false })
 export class Users {
     @Prop({
         type: String,

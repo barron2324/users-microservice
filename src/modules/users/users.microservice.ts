@@ -4,10 +4,8 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { playloadCreateUserInterface } from './interface/payload-create-user.interface';
 import { AuthService } from '../auth/auth.service';
 import { USER_CMD } from 'src/constants';
-import { payloadLoginUserInterface } from '../auth/interface/payload-login-user.interface';
 import { loginterface } from '../auth/interface/login.interface';
 import { Users } from './users.schema';
-import { log } from 'console';
 import { payloadUpdateUserInterface } from './interface/payload-update-user.interface';
 
 @Controller('users')
