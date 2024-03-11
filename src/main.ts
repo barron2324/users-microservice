@@ -2,11 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions, RmqOptions, Transport } from '@nestjs/microservices';
 import * as dayjs from 'dayjs';
 import 'dayjs/plugin/timezone';
 import 'dayjs/plugin/isToday';
-import { getQueueName } from './microservice.providers';
 
 dayjs.extend(require('dayjs/plugin/timezone'));
 dayjs.extend(require('dayjs/plugin/isToday'));
@@ -16,25 +15,19 @@ async function bootstrap() {
   const configService = app.get<ConfigService>(ConfigService);
   const port = configService.get('PORT');
   const provider = configService.get<string>('provider');
+  const rmqUrl = configService.get('RMQ');
   const logger = new Logger();
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidUnknownValues: false,
-    }),
-  )
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: [process.env.RMQ],
-      queue: getQueueName(provider),
+      noAck: true,
+      urls: [rmqUrl],
+      queue: provider,
       queueOptions: {
-        durable: false,
+        durable: false
       },
-    },
+    }
   })
 
   app.startAllMicroservices();
