@@ -204,4 +204,21 @@ export class UsersMicroserviec {
             });
         }
     }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'find-new-user'
+    })
+    async findNewUser(): Promise<Users> {
+        try {
+            return await this.usersService.findNewAllUser()
+        } catch (e) {
+            this.logger.error(
+                `catch on find-new-user: ${e?.message ?? JSON.stringify(e)}`,
+            );
+            throw new InternalServerErrorException({
+                message: e?.message ?? e,
+            });
+        }
+    }
 }
