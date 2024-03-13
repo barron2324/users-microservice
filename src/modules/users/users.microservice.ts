@@ -7,6 +7,7 @@ import { USER_CMD } from 'src/constants';
 import { loginterface } from '../auth/interface/login.interface';
 import { Users } from './users.schema';
 import { payloadUpdateUserInterface } from './interface/payload-update-user.interface';
+import StatusUser from './enum/status-user.enum';
 
 @Controller('users')
 export class UsersMicroserviec {
@@ -69,9 +70,9 @@ export class UsersMicroserviec {
     async register(
         @Payload() payload: playloadCreateUserInterface,
     ): Promise<void> {
+        this.logger.log(payload)
         try {
-            await this.usersService.createUser(payload);
-            this.logger.log(`Create Success : ${payload.email, payload.username}`)
+            await this.usersService.getUserModel().create({...payload, password: payload.hashPassword});
         } catch (error) {
             this.logger.error(
                 `catch on createUser: ${error?.message ?? JSON.stringify(error)}`,
@@ -215,6 +216,54 @@ export class UsersMicroserviec {
         } catch (e) {
             this.logger.error(
                 `catch on find-new-user: ${e?.message ?? JSON.stringify(e)}`,
+            );
+            throw new InternalServerErrorException({
+                message: e?.message ?? e,
+            });
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'ban-user'
+    })
+    async banUser(@Payload() userId: string): Promise<void> {
+        try {
+            await this.usersService.getUserModel().updateOne(
+                {
+                    userId
+                },
+                {
+                    status: StatusUser.INACTIVE
+                }
+            )
+        } catch (e) {
+            this.logger.error(
+                `catch on ban-user: ${e?.message ?? JSON.stringify(e)}`,
+            );
+            throw new InternalServerErrorException({
+                message: e?.message ?? e,
+            });
+        }
+    }
+
+    @MessagePattern({
+        cmd: USER_CMD,
+        method: 'un-ban-user'
+    })
+    async unBanUser(@Payload() userId: string): Promise<void> {
+        try {
+            await this.usersService.getUserModel().updateOne(
+                {
+                    userId
+                },
+                {
+                    status: StatusUser.ACTIVE
+                }
+            )
+        } catch (e) {
+            this.logger.error(
+                `catch on ban-user: ${e?.message ?? JSON.stringify(e)}`,
             );
             throw new InternalServerErrorException({
                 message: e?.message ?? e,

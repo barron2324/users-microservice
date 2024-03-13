@@ -24,23 +24,6 @@ export class UsersService {
         return this.usersModel;
     }
 
-    async createUser(user: playloadCreateUserInterface): Promise<Users> {
-        const emailUser = await this.findOneEmail(user.email);
-        if (emailUser) {
-            throw new UnauthorizedException('Email already exists');
-        }
-        const usernameUser = await this.findOneUsername(user.username);
-        if (usernameUser) {
-            throw new UnauthorizedException('Username already exists');
-        }
-        const hashPassword = await hash(user.password, 10);
-        const createUser = new this.usersModel({
-            ...user,
-            password: hashPassword,
-        });
-        return this.usersModel.create(createUser);
-    }
-
     async findOneEmail(email: string): Promise<Users> {
         return this.usersModel.findOne({ email }).lean()
     }

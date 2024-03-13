@@ -33,7 +33,7 @@ export class Users {
         type: String,
         required: true,
     })
-    fristname: string;
+    firstname: string;
 
     @Prop({
         type: String,

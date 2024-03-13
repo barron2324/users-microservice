@@ -1,7 +1,9 @@
 export interface playloadCreateUserInterface {
   email: string;
   username: string;
-  fristname: string;
+  firstname: string;
   lastname: string;
   password: string;
+
+  hashPassword: string
 }

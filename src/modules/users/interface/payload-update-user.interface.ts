@@ -1,4 +1,4 @@
 export interface payloadUpdateUserInterface {
-    fristname: string;
+    firstname: string;
     lastname: string;
 }
